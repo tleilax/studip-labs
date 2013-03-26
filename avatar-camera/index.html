@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Avatar by WebCam upload</title>
+    <link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <div class="video">
+        <video id="video"></video>
+        <div>
+            <button id="take-picture">Take Picture</button>
+        </div>
+    </div>
+    <div class="result">
+        <canvas id="canvas"></canvas>
+        <canvas id="helper"></canvas>
+        <img src="about:blank" id="result" alt="">
+        <div>
+            <button id="redo">Redo</button>
+            <button id="normal">Normal</button>
+            <button id="bw">Black &amp; White</button>
+            <button id="sepia">Sepia</button>
+        </div>
+    </div>
+    
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
