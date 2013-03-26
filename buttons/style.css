@@ -1,0 +1,303 @@
+body {
+  padding: 0 2em;
+}
+
+label {
+  color: #fff;
+}
+
+h1 {
+  float: left;
+  width: 12em;
+  margin: 0;
+  font-size: 2em;
+  vertical-align: middle;
+}
+
+pre {
+  height: 500px;
+  padding: 0.5em 1em;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #888;
+}
+
+button span ~ span {
+  display: none;
+}
+/* Default blue arrow buttonset */
+
+.button.button-arrow-begin {
+  padding-left: 35px;
+}
+
+.button.button-arrow-begin:before {
+  position: absolute;
+  top: 4px;
+  left: 15px;
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/blue/arr_2left.png");
+}
+
+.button.button-arrow-back {
+  padding-left: 35px;
+}
+
+.button.button-arrow-back:before {
+  position: absolute;
+  top: 4px;
+  left: 15px;
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/blue/arr_1left.png");
+}
+
+.button.button-arrow-forward {
+  padding-right: 30px;
+}
+
+.button.button-arrow-forward:after {
+  position: absolute;
+  top: 4px;
+  right: 15px;
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/blue/arr_1right.png");
+}
+
+.button.button-arrow-end {
+  padding-right: 30px;
+}
+
+.button.button-arrow-end:after {
+  position: absolute;
+  top: 4px;
+  right: 15px;
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/blue/arr_2right.png");
+}
+
+.button.button-blue.button-arrow-begin:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/blue/arr_2left.png");
+}
+
+.button.button-blue.button-arrow-back:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/blue/arr_1left.png");
+}
+
+.button.button-blue.button-arrow-forward:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/blue/arr_1right.png");
+}
+
+.button.button-blue.button-arrow-end:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/blue/arr_2right.png");
+}
+
+/* Black arrow buttonset */
+
+.button.button-black.button-arrow-begin:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/black/arr_2left.png");
+}
+
+.button.button-black.button-arrow-back:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/black/arr_1left.png");
+}
+
+.button.button-black.button-arrow-forward:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/black/arr_1right.png");
+}
+
+.button.button-black.button-arrow-end:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/black/arr_2right.png");
+}
+
+/* Grey arrow buttonset */
+
+.button.button-grey.button-arrow-begin:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/grey/arr_2left.png");
+}
+
+.button.button-grey.button-arrow-back:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/grey/arr_1left.png");
+}
+
+.button.button-grey.button-arrow-forward:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/grey/arr_1right.png");
+}
+
+.button.button-grey.button-arrow-end:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/grey/arr_2right.png");
+}
+
+/* Green arrow buttonset */
+
+.button.button-green.button-arrow-begin:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/green/arr_2left.png");
+}
+
+.button.button-green.button-arrow-back:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/green/arr_1left.png");
+}
+
+.button.button-green.button-arrow-forward:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/green/arr_1right.png");
+}
+
+.button.button-green.button-arrow-end:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/green/arr_2right.png");
+}
+
+/* Red arrow buttonset */
+
+.button.button-red.button-arrow-begin:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/red/arr_2left.png");
+}
+
+.button.button-red.button-arrow-back:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/red/arr_1left.png");
+}
+
+.button.button-red.button-arrow-forward:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/red/arr_1right.png");
+}
+
+.button.button-red.button-arrow-end:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/red/arr_2right.png");
+}
+
+/* White arrow buttonset */
+
+.button.button-white.button-arrow-begin:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/white/arr_2left.png");
+}
+
+.button.button-white.button-arrow-back:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/white/arr_1left.png");
+}
+
+.button.button-white.button-arrow-forward:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/white/arr_1right.png");
+}
+
+.button.button-white.button-arrow-end:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/white/arr_2right.png");
+}
+
+/* Yellow arrow buttonset */
+
+.button.button-yellow.button-arrow-begin:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/yellow/arr_2left.png");
+}
+
+.button.button-yellow.button-arrow-back:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/yellow/arr_1left.png");
+}
+
+.button.button-yellow.button-arrow-forward:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/yellow/arr_1right.png");
+}
+
+.button.button-yellow.button-arrow-end:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/yellow/arr_2right.png");
+}
+/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: black;
+	text-shadow: 0 1px white;
+	font-family: Consolas, Monaco, 'Andale Mono', monospace;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+	
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+@media print {
+	code[class*="language-"],
+	pre[class*="language-"] {
+		text-shadow: none;
+	}
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;	
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #f5f2f0;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: slategray;
+}
+
+.token.punctuation {
+	color: #999;
+}
+
+.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number {
+	color: #905;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string {
+	color: #690;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+	color: #a67f59;
+	background: hsla(0,0%,100%,.5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+	color: #07a;
+}
+
+
+.token.regex,
+.token.important {
+	color: #e90;
+}
+
+.token.important {
+	font-weight: bold;
+}
+
+.token.entity {
+	cursor: help;
+}

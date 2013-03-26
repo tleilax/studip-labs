@@ -1,0 +1,169 @@
+/* Default blue arrow buttonset */
+
+.button.button-arrow-begin {
+  padding-left: 35px;
+}
+
+.button.button-arrow-begin:before {
+  position: absolute;
+  top: 4px;
+  left: 15px;
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/blue/arr_2left.png");
+}
+
+.button.button-arrow-back {
+  padding-left: 35px;
+}
+
+.button.button-arrow-back:before {
+  position: absolute;
+  top: 4px;
+  left: 15px;
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/blue/arr_1left.png");
+}
+
+.button.button-arrow-forward {
+  padding-right: 30px;
+}
+
+.button.button-arrow-forward:after {
+  position: absolute;
+  top: 4px;
+  right: 15px;
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/blue/arr_1right.png");
+}
+
+.button.button-arrow-end {
+  padding-right: 30px;
+}
+
+.button.button-arrow-end:after {
+  position: absolute;
+  top: 4px;
+  right: 15px;
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/blue/arr_2right.png");
+}
+
+.button.button-blue.button-arrow-begin:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/blue/arr_2left.png");
+}
+
+.button.button-blue.button-arrow-back:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/blue/arr_1left.png");
+}
+
+.button.button-blue.button-arrow-forward:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/blue/arr_1right.png");
+}
+
+.button.button-blue.button-arrow-end:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/blue/arr_2right.png");
+}
+
+/* Black arrow buttonset */
+
+.button.button-black.button-arrow-begin:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/black/arr_2left.png");
+}
+
+.button.button-black.button-arrow-back:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/black/arr_1left.png");
+}
+
+.button.button-black.button-arrow-forward:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/black/arr_1right.png");
+}
+
+.button.button-black.button-arrow-end:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/black/arr_2right.png");
+}
+
+/* Grey arrow buttonset */
+
+.button.button-grey.button-arrow-begin:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/grey/arr_2left.png");
+}
+
+.button.button-grey.button-arrow-back:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/grey/arr_1left.png");
+}
+
+.button.button-grey.button-arrow-forward:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/grey/arr_1right.png");
+}
+
+.button.button-grey.button-arrow-end:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/grey/arr_2right.png");
+}
+
+/* Green arrow buttonset */
+
+.button.button-green.button-arrow-begin:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/green/arr_2left.png");
+}
+
+.button.button-green.button-arrow-back:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/green/arr_1left.png");
+}
+
+.button.button-green.button-arrow-forward:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/green/arr_1right.png");
+}
+
+.button.button-green.button-arrow-end:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/green/arr_2right.png");
+}
+
+/* Red arrow buttonset */
+
+.button.button-red.button-arrow-begin:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/red/arr_2left.png");
+}
+
+.button.button-red.button-arrow-back:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/red/arr_1left.png");
+}
+
+.button.button-red.button-arrow-forward:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/red/arr_1right.png");
+}
+
+.button.button-red.button-arrow-end:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/red/arr_2right.png");
+}
+
+/* White arrow buttonset */
+
+.button.button-white.button-arrow-begin:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/white/arr_2left.png");
+}
+
+.button.button-white.button-arrow-back:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/white/arr_1left.png");
+}
+
+.button.button-white.button-arrow-forward:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/white/arr_1right.png");
+}
+
+.button.button-white.button-arrow-end:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/white/arr_2right.png");
+}
+
+/* Yellow arrow buttonset */
+
+.button.button-yellow.button-arrow-begin:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/yellow/arr_2left.png");
+}
+
+.button.button-yellow.button-arrow-back:before {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/yellow/arr_1left.png");
+}
+
+.button.button-yellow.button-arrow-forward:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/yellow/arr_1right.png");
+}
+
+.button.button-yellow.button-arrow-end:after {
+  content: url("http://studip.tleilax.de/trunk/assets/images/icons/16/yellow/arr_2right.png");
+}

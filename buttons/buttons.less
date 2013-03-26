@@ -1,0 +1,73 @@
+@image-path: "http://studip.tleilax.de/trunk/assets/images/icons";
+
+.button-icon (@icon) {
+    content: url("@{image-path}/@{icon}");
+    position: absolute;
+    top: 4px;
+}
+
+.button-icon-before (@icon, @padding: 20px, @position: 15px) {
+    padding-left: (15px + @padding);
+    &:before {
+        .button-icon(@icon);
+        left: @position;
+    }
+}
+
+.button-icon-after (@icon, @padding: 15px, @position: 15px) {
+    padding-right: (15px + @padding);
+    &:after {
+        .button-icon(@icon);
+        right: @position;
+    }
+}
+
+.button-arrow-set (@color: "blue", @class: "", @size: "16", @format: "png") {
+    (~".button@{class}") {
+        &.button-arrow-begin {
+            .button-icon-before("@{size}/@{color}/arr_2left.@{format}");
+        }
+        &.button-arrow-back {
+            .button-icon-before("@{size}/@{color}/arr_1left.@{format}");
+        }
+        &.button-arrow-forward {
+            .button-icon-after("@{size}/@{color}/arr_1right.@{format}");
+        }
+        &.button-arrow-end {
+            .button-icon-after("@{size}/@{color}/arr_2right.@{format}");
+        }
+    }
+}
+
+.button-arrow-set-color (@color, @class, @size: "16", @format: "png") {
+    (~".button@{class}") {
+        &.button-arrow-begin:before {
+            content: url("@{image-path}/@{size}/@{color}/arr_2left.@{format}");
+        }
+        &.button-arrow-back:before {
+            content: url("@{image-path}/@{size}/@{color}/arr_1left.@{format}");
+        }
+        &.button-arrow-forward:after {
+            content: url("@{image-path}/@{size}/@{color}/arr_1right.@{format}");
+        }
+        &.button-arrow-end:after {
+            content: url("@{image-path}/@{size}/@{color}/arr_2right.@{format}");
+        }
+    }
+}
+
+/* Default blue arrow buttonset */
+.button-arrow-set;
+.button-arrow-set-color("blue", ".button-blue");
+/* Black arrow buttonset */
+.button-arrow-set-color("black", ".button-black");
+/* Grey arrow buttonset */
+.button-arrow-set-color("grey", ".button-grey");
+/* Green arrow buttonset */
+.button-arrow-set-color("green", ".button-green");
+/* Red arrow buttonset */
+.button-arrow-set-color("red", ".button-red");
+/* White arrow buttonset */
+.button-arrow-set-color("white", ".button-white");
+/* Yellow arrow buttonset */
+.button-arrow-set-color("yellow", ".button-yellow");
