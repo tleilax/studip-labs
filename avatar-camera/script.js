@@ -21,9 +21,11 @@
         var src;
         if (navigator.mozGetUserMedia) {
             video.mozSrcObject = stream;
-        } else {
+        } else if (window.URL || window.webkitURL) {
             src = (window.URL || window.webkitURL).createObjectURL(stream);
             video.src = src;
+        } else {
+            video.src = stream;
         }
         video.play();
     }, function (error) {
