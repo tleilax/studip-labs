@@ -23,7 +23,7 @@
             video.mozSrcObject = stream;
         } else {
             src = (window.URL || window.webkitURL).createObjectURL(stream);
-            video.src = url;
+            video.src = src;
         }
         video.play();
     }, function (error) {
