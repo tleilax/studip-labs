@@ -2,28 +2,37 @@
 <html>
 <head>
     <title>Avatar by WebCam upload</title>
-    <link href="style.css" rel="stylesheet" type="text/css">
+    <link href="assets/imgareaselect/imgareaselect-default.css" rel="stylesheet" type="text/css">
+    <link href="assets/style.css" rel="stylesheet" type="text/css">
 </head>
 <body>
     <div class="video">
         <video id="video"></video>
         <div>
-            <button id="take-picture">Take Picture</button>
+            <button id="take-picture">Bild aufnehmen</button>
         </div>
     </div>
     <div class="result">
-        <canvas id="canvas"></canvas>
-        <canvas id="helper"></canvas>
-        <img src="about:blank" id="result" alt="">
+        <canvas id="result"></canvas>
         <div>
-            <button id="redo">Redo</button>
+            <button id="redo">Nochmal</button>
+            <button id="upload">Speichern</button>
+        </div>
+        <div>
+            Filter: 
             <button id="normal">Normal</button>
-            <button id="bw">Black &amp; White</button>
-            <button id="sepia">Sepia</button>
+            <button data-filter="blackAndWhite">Schwarzweiss</button>
+            <button data-filter="sepia">Sepia</button>
+            <button data-filter="brighten">Aufhellen</button>
+            <button data-filter="darken">Abdunkeln</button>
+            <button data-filter="invert">Invertieren</button>
         </div>
     </div>
-    
-    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-    <script src="script.js"></script>
+
+    <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+    <script src="assets/imgareaselect/jquery.imgareaselect.dev.js"></script>
+    <script src="assets/camvas.js"></script>
+    <script src="assets/camvas-filter.js"></script>
+    <script src="assets/script.js"></script>
 </body>
 </html>
