@@ -1,78 +1,110 @@
 (function (scope) {
+    
+    // Camvas addon: filters
 
-    var CanvasFilter = {};
-    CanvasFilter.filterImage = function (source, f) {
-        var helper       = document.createElement('canvas'),
-            imageData = source.getContext('2d').getImageData(0, 0, source.width, source.height),
-            pixels    = imageData.data,
-            r, g, b, i, tmp;
-
-        helper.width  = source.width;
-        helper.height = source.height;
-
-        imageData.data = f(pixels);
-        helper.getContext('2d').putImageData(imageData, 0, 0);
-
-        return helper;
-    };
-
-    CanvasFilter.blackAndWhite = function (pixels) {
-        var numPixels = pixels.length,
-            i, average;
-        for (i = 0; i < numPixels; i += 4) {
-            average = pixels[i + 0] * 0.2126 + pixels[i + 1] * 0.7152 + pixels[i + 2] * 0.0722;
-
-            pixels[i + 0] = average;
-            pixels[i + 1] = average;
-            pixels[i + 2] = average;
-        }
-        return pixels;
-    };
-
-    CanvasFilter.sepia = function (pixels) {
-        var numPixels = pixels.length,
-            i;
-        for (i = 0; i < numPixels; i += 4) {
-            pixels[i + 0] = pixels[i + 0] * 0.393 + pixels[i + 1] * 0.769 + pixels[i + 2] * 0.189;
-            pixels[i + 1] = pixels[i + 0] * 0.349 + pixels[i + 1] * 0.686 + pixels[i + 2] * 0.168;
-            pixels[i + 2] = pixels[i + 0] * 0.272 + pixels[i + 1] * 0.534 + pixels[i + 2] * 0.131;
-        }
-        return pixels;
-    };
-
-    CanvasFilter.brighten = function (pixels) {
-        var numPixels = pixels.length,
-            i;
-        for (i = 0; i < numPixels; i += 4) {
-            pixels[i + 0] += 16;
-            pixels[i + 1] += 16;
-            pixels[i + 2] += 16;
-        }
-        return pixels;
+    if (!scope.Camvas) {
+        return false;
     }
 
-    CanvasFilter.darken = function (pixels) {
-        var numPixels = pixels.length,
-            i;
-        for (i = 0; i < numPixels; i += 4) {
-            pixels[i + 0] -= 16;
-            pixels[i + 1] -= 16;
-            pixels[i + 2] -= 16;
+    function isEmpty(obj) {
+        for (var prop in obj) {
+            if (obj.hasOwnProperty(prop)) {
+                return false;
+            }
         }
-        return pixels;
+        return true;
     }
 
-    CanvasFilter.invert = function (pixels) {
-        var numPixels = pixels.length,
-            i;
-        for (i = 0; i < numPixels; i += 4) {
-            pixels[i + 0] = 255 - pixels[i + 0];
-            pixels[i + 1] = 255 - pixels[i + 1];
-            pixels[i + 2] = 255 - pixels[i + 2];
-        }
-        return pixels;
-    }
+    var Filters = {},
+        flip    = scope.Camvas.definition.prototype.flip;
+    scope.Camvas.definition.prototype.flip = function () {
 
-    scope.CanvasFilter = CanvasFilter;
+        var src     = this.video,
+            filters = this.getFilters(),
+            temp, ctx,
+            pixels, filter, args, imageData;
+
+        // Apply filters to video
+        if (!isEmpty(filters)) {
+            temp = document.createElement('canvas'),
+            temp.width  = this.canvas.width;
+            temp.height = this.canvas.height;
+
+            ctx = temp.getContext('2d');
+            ctx.drawImage(src,
+                          0, 0, src.width, src.height,
+                          0, 0, this.canvas.width, this.canvas.height);
+            imageData = ctx.getImageData(0, 0, temp.width, temp.height);
+            pixels    = imageData.data;
+
+            for (filter in filters) {
+                args = filters[filter];
+                pixels = Filters[filter].func(pixels, temp.width, temp.height);
+            }
+
+            imageData.data = pixels;
+            ctx.putImageData(imageData, 0, 0);
+
+            src = temp;
+        }
+
+        // Copy (filtered) video to canvas through stored original function
+        flip.apply(this, [src]);
+    };
+
+    scope.Camvas.definition.prototype.getFilters = function () {
+        this.filters = this.filters || {};
+        return this.filters;
+    }
+    scope.Camvas.definition.prototype.addFilter = function (filter) {
+        if (typeof Filters[filter] === 'undefined') {
+            return false;
+        }
+        filters = this.getFilters();
+        filters[filter] = Array.prototype.slice.call(arguments, 1);;
+        return Filters[filter];
+    };
+    scope.Camvas.definition.prototype.removeFilter = function (filter) {
+        filters = this.getFilters();
+        delete filters[filter];
+    };
+    scope.Camvas.definition.prototype.resetFilters = function () {
+        this.filters = {};
+    };
+
+    // Extend external Fassade
+    scope.Camvas.filters = Filters;
+    scope.Camvas.registerFilter = function (name, filterFunc, filterArgs) {
+        Filters[name] = filterArgs || {};
+        Filters[name].func = filterFunc;
+    };
+    scope.Camvas.registerFilterAddMatrix = function (name, matrix) {
+        Filters[name] = {matrix: matrix};
+        Filters[name].func = function (pixels) {
+            var numPixels = pixels.length,
+                matrix    = Filters[name].matrix,
+                i;
+            for (i = 0; i < numPixels; i += 4) {
+                pixels[i + 0] += matrix[0];
+                pixels[i + 1] += matrix[1];
+                pixels[i + 2] += matrix[2];
+            }
+            return pixels;
+        };
+    };
+    scope.Camvas.registerFilterMulMatrix = function (name, matrix) {
+        Filters[name] = {matrix: matrix};
+        Filters[name].func = function (pixels) {
+            var numPixels = pixels.length,
+                matrix    = Filters[name].matrix,
+                i;
+            for (i = 0; i < numPixels; i += 4) {
+                pixels[i + 0] = pixels[i + 0] * matrix[0] + pixels[i + 1] * matrix[1] + pixels[i + 2] * matrix[2];
+                pixels[i + 1] = pixels[i + 0] * matrix[3] + pixels[i + 1] * matrix[4] + pixels[i + 2] * matrix[5];
+                pixels[i + 2] = pixels[i + 0] * matrix[6] + pixels[i + 1] * matrix[7] + pixels[i + 2] * matrix[8];
+            }
+            return pixels;
+        };
+    };
 
 }(window));

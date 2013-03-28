@@ -1,38 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Avatar by WebCam upload</title>
     <link href="assets/imgareaselect/imgareaselect-default.css" rel="stylesheet" type="text/css">
     <link href="assets/style.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-    <div class="video">
-        <video id="video"></video>
+    <div class="hidden">
+        <canvas id="avatar"></canvas>
         <div>
-            <button id="take-picture">Bild aufnehmen</button>
+            <button id="pause">Pause</button>
+            <button id="play">Play</button>
+            <button id="save">Speichern</button>
+        </div>
+        <div>
+            <label>
+                Filter: 
+                <select data-togglefilter="sepia,luma,red,green,blue">
+                    <option value="">&nbsp;</option>
+                    <option value="sepia">Sepia</option>
+                    <option value="luma">Schwarzweiss</option>
+                    <option value="red">Rot</option>
+                    <option value="green">Grün</option>
+                    <option value="blue">Blau</option>
+                </select>
+            </label>
+        
+            <label>
+                Helligkeit:
+                <select data-togglebrightness>
+                    <option value="64">Am hellsten</option>
+                    <option value="32">Heller</option>
+                    <option value="16">Hell</option>
+                    <option value="" selected>&nbsp;</option>
+                    <option value="-16">Dunkel</option>
+                    <option value="-32">Dunkler</option>
+                    <option value="-64">Am dunkelsten</option>
+                </select>
+            </label>
+            <label>
+                <input type="checkbox" value="invert" data-togglefilter="invert">
+                Invertieren
+            </label>
+            <label>
+                <input type="checkbox" value="reduce" data-togglefilter="reduce">
+                Reduzieren
+            </label>
+            <label>
+                <input type="checkbox" value="threshold" data-togglefilter="threshold">
+                Grenzwert
+            </label>
+            <label>
+                <input type="checkbox" value="pixelate" data-togglefilter="pixelate">
+                Pixelate
+            </label>
+        </div>
+        <div>
+            Spiegeln: 
+            <label>
+                <input type="checkbox" value="flipHorizontal" data-togglefilter="flipHorizontal">
+                Horizontal
+            </label>
+            <label>
+                <input type="checkbox" value="flipVertical" data-togglefilter="flipVertical">
+                Vertikal
+            </label>
+            <label>
+                <input type="checkbox" value="mirrorsplit" data-togglefilter="mirrorsplit">
+                Horizontal teilen
+            </label>
         </div>
     </div>
-    <div class="result">
-        <canvas id="result"></canvas>
-        <div>
-            <button id="redo">Nochmal</button>
-            <button id="upload">Speichern</button>
-        </div>
-        <div>
-            Filter: 
-            <button id="normal">Normal</button>
-            <button data-filter="blackAndWhite">Schwarzweiss</button>
-            <button data-filter="sepia">Sepia</button>
-            <button data-filter="brighten">Aufhellen</button>
-            <button data-filter="darken">Abdunkeln</button>
-            <button data-filter="invert">Invertieren</button>
-        </div>
-    </div>
+    
+    <script src="assets/camvas-core.js"></script>
+
+    <script src="assets/camvas-filter.js"></script>
+    <script src="assets/camvas-filters.js"></script>
 
     <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
     <script src="assets/imgareaselect/jquery.imgareaselect.dev.js"></script>
-    <script src="assets/camvas.js"></script>
-    <script src="assets/camvas-filter.js"></script>
+    <script src="assets/camvas-selection.js"></script>
+
     <script src="assets/script.js"></script>
 </body>
 </html>

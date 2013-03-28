@@ -1,3 +1,0 @@
-(function (scope) {
-    
-}(STUDIP || window));

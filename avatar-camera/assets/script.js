@@ -1,103 +1,61 @@
 (function ($) {
-    $(document).ready(function () {
-        var camvas = new Camvas('#video');
+    var sfx = {
+        snap: document.createElement('audio')
+    };
+    sfx.snap.src = 'assets/snap.wav';
+
+    var camvas = Camvas.create('#avatar', 640, 480, function () {
+        $('.hidden').show();
+
+        camvas.enableSelection({
+            aspectRatio: '1:1',
+            handles: 'corners',
+            minHeight: 250,
+            minWidth: 250,
+            persistent: true,
+            x1: 80, // = (640 - 480) / 2
+            y1: 0,
+            x2: 560, // = 640 - x1
+            y2: 480
+        });
     });
-    var MIN_WIDTH  = 250,
-        MIN_HEIGHT = 250,
-        video      = $('#video')[0],
-        result     = $('#result')[0],
-        selection  = $('#result').imgAreaSelect({
-                         aspectRatio: '1:1',
-                         handles: 'corners',
-                         instance: true,
-                         minHeight: MIN_WIDTH,
-                         minWidth: MIN_HEIGHT,
-                         persistent: true
-                     }),
-        snapshot   = document.createElement('canvas'),
-        snap_sfx   = document.createElement('audio'),
-        width      = 640,
-        height     = 480;
-    snap_sfx.src     = 'assets/snap.wav';
 
-    navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
-    if (typeof navigator.getMedia === 'undefined') {
-        console.log('foo');
-        return;
-    }
+    $('#pause').click(function () { camvas.pause(); });
+    $('#play').click(function () { camvas.play(); });
 
-    navigator.getMedia({
-        video: true,
-        audio: false
-    }, function (stream) {
-        if (navigator.mozGetUserMedia) {
-            video.mozSrcObject = stream;
-        } else if (window.URL || window.webkitURL) {
-            video.src = (window.URL || window.webkitURL).createObjectURL(stream);
-        } else {
-            video.src = stream;
+    $('[data-togglefilter]').change(function () {
+        var filters = $(this).data('togglefilter').split(','),
+            value   = $(this).val(),
+            active  = $(this).val(),
+            i;
+        for (i = 0; i < filters.length; i++) {
+            camvas.removeFilter(filters[i]);
         }
-        video.play();
-    }, function (error) {
-        console.log('An error occured: ' + error);
+        if ($(this).is(':checkbox')) {
+            active = this.checked;
+        }
+
+        if (active) {
+            camvas.addFilter(value);
+        }
+    });
+    
+    $('[data-togglebrightness]').change(function () {
+        var value = parseInt($(this).val(), 10),
+            matrix;
+        if (value) {
+            filter = camvas.addFilter('brighten');
+            filter.matrix = [value, value, value];
+        } else {
+            camvas.removeFilter('brighten');
+        }
     });
 
-    $(video).bind('canplay', function () {
-        height = video.videoHeight / (video.videoWidth / width);
+    $('#save').click(function () {
+        sfx.snap.play();
 
-        video.width   = snapshot.width  = result.width  = width;
-        video.height  = snapshot.height = result.height = height;
-
-        $('.video').show();
-
-        $(this).unbind('canplay');
-    });
-
-    function copyCanvas(source, destination) {
-        destination.getContext('2d').drawImage(source, 0, 0, source.width, source.height);
-    }
-
-    $('#take-picture').click(function () {
-        snap_sfx.play();
-
-        $('.result, .video').toggle();
-
-        copyCanvas(video, snapshot);
-        copyCanvas(snapshot, result);
-
-        var w = Math.min(snapshot.width, snapshot.height),
-            x0 = (snapshot.width - w) / 2,
-            y0 = (snapshot.height - w) / 2;
-        selection.setSelection(x0, y0, x0 + w, y0 + w);
-        selection.setOptions({show: true});
-    });
-
-    $('#redo').click(function () {
-        selection.cancelSelection();
-        $('.video, .result').toggle();
-    });
-
-    $('#normal').click(function () {
-        copyCanvas(snapshot, result);
-    });
-
-    $('[data-filter]').click(function () {
-        var filter = $(this).data('filter'),
-            filtered = CanvasFilter.filterImage(snapshot, CanvasFilter[filter]);
-        copyCanvas(filtered, result);
-    });
-
-    $('#upload').click(function () {
-        var selected = selection.getSelection(),
-            cropped  = document.createElement('canvas'),
-            data     = {};
-        cropped.width  = selected.width;
-        cropped.height = selected.height;
-        cropped.getContext('2d').drawImage(result,
-                                           selected.x1, selected.y1, selected.width, selected.height,
-                                           0, 0, selected.width, selected.height);
-        data.contents = cropped.toDataURL('image/jpeg', 0.95).replace(/^data:image\/jpeg;base64,/, '');
-
+        var data = {};
+        data.contents = camvas.toDataURL('image/jpeg', 0.95).replace(/^data:image\/jpeg;base64,/, '');
         $.post('upload.php', data, function () {
             alert('success');
         });
