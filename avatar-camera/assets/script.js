@@ -54,8 +54,9 @@
     $('#save').click(function () {
         sfx.snap.play();
 
-        var data = {};
-        data.contents = camvas.toDataURL('image/jpeg', 0.95).replace(/^data:image\/jpeg;base64,/, '');
+        var data = {
+            contents: camvas.toDataURL('image/jpeg', 0.95).replace(/^data:image\/jpeg;base64,/, '')
+        };
         $.post('upload.php', data, function () {
             alert('success');
         });

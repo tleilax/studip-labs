@@ -182,5 +182,27 @@
             return pixels;
         }, {size: pixelSize});
     }());
+    
+    // Gaussian blur filter
+    Camvas.registerFilterMatrix('gaussianBlur', [1, 1, 1,
+                                                 1, 1, 1,
+                                                 1, 1, 1], 9);
+
+    // Sharpen filter
+    Camvas.registerFilterMatrix('sharpen', [-1, -1, -1, -1, -1,
+                                            -1,  2,  2,  2, -1,
+                                            -1,  2,  8,  2, -1,
+                                            -1,  2,  2,  2, -1,
+                                            -1, -1, -1, -1, -1], 8);
+
+    // Laplace filter, http://en.wikipedia.org/wiki/Discrete_Laplace_operator#Implementation_in_Image_Processing
+    Camvas.registerFilterMatrix('laplace', [1,  1, 1,
+                                            1, -7, 1,
+                                            1,  1, 1]);
+
+    // Laplace filter, http://en.wikipedia.org/wiki/Discrete_Laplace_operator#Implementation_in_Image_Processing
+    Camvas.registerFilterMatrix('emboss', [-2, -1, 0,
+                                           -1,  1, 1,
+                                            0,  1, 2]);
 
 }(window));

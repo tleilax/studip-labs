@@ -1,5 +1,5 @@
 (function (scope) {
-    
+
     // Camvas addon: filters
 
     if (!scope.Camvas) {
@@ -38,7 +38,6 @@
             pixels    = imageData.data;
 
             for (filter in filters) {
-                args = filters[filter];
                 pixels = Filters[filter].func(pixels, temp.width, temp.height);
             }
 
@@ -77,6 +76,58 @@
     scope.Camvas.registerFilter = function (name, filterFunc, filterArgs) {
         Filters[name] = filterArgs || {};
         Filters[name].func = filterFunc;
+    };
+    scope.Camvas.registerFilterMatrix = function (name, matrix, factor) {
+        factor = factor || 1;
+
+        var filter = {matrix: matrix},
+            size   = Math.floor(Math.sqrt(matrix.length)),
+            offset = Math.floor(size / 2);
+        filter.func = function (pixels, width, height) {
+            if (typeof filter.helper === 'undefined') {
+                filter.helper = document.createElement('canvas').getContext('2d').createImageData(width, height).data;
+            }
+
+            var numPixels = pixels.length,
+                i,
+                x, y,
+                sx, sy,
+                r, g, b,
+                weight,
+                srcOffset, destOffset, matrixOffset;
+
+            for (i = 0; i < numPixels; i += 1) {
+                filter.helper[i] = pixels[i];
+            }
+
+            destOffset = 0;
+            for (y = 0; y < height; y += 1) {
+                for (x = 0; x < width; x += 1) {
+                    r = g = b = matrixOffset = 0;
+                    for (sy = y - offset; sy < y + offset; sy += 1) {
+                        srcOffset = (sy * width + x - offset) << 2;
+                        for (sx = x - offset; sx < x + offset; sx += 1) {
+                            if (sx >= 0 && sx < width && sy >= 0 && sy < height) {
+                                weight = filter.matrix[matrixOffset];
+                                r += filter.helper[srcOffset + 0] * weight;
+                                g += filter.helper[srcOffset + 1] * weight;
+                                b += filter.helper[srcOffset + 2] * weight;
+                            }
+                            srcOffset    += 4;
+                            matrixOffset += 1;
+                        }
+                    }
+
+                    pixels[destOffset + 0] = r / factor;
+                    pixels[destOffset + 1] = g / factor;
+                    pixels[destOffset + 2] = b / factor;
+
+                    destOffset += 4;
+                }
+            }
+            return pixels;
+        };
+        Filters[name] = filter;
     };
     scope.Camvas.registerFilterAddMatrix = function (name, matrix) {
         Filters[name] = {matrix: matrix};
