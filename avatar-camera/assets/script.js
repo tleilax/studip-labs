@@ -7,6 +7,7 @@
     var camvas = Camvas.create('#avatar', 640, 480, function () {
         $('.hidden').show();
 
+        camvas.debug('#debug');
         camvas.enableSelection({
             aspectRatio: '1:1',
             handles: 'corners',

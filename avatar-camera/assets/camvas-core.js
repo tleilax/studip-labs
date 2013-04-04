@@ -59,6 +59,7 @@ navigator.getMedia = (function () {
         this.context = canvas.getContext('2d');
         this.video   = video;
         this.paused  = true;
+        this.running = false;
 
         canvas.width  = width  || canvas.clientWidth  || canvas.width;
         canvas.height = height || canvas.clientHeight || canvas.height;
@@ -93,17 +94,25 @@ navigator.getMedia = (function () {
         if (this.paused) {
             this.paused = false;
             this.video.play();
+
+        }
+        if (!this.running) {
             this.loop();
+            this.running = true;
         }
     };
     Camvas.prototype.loop = function () {
         var self = this;
         (function loop () {
-            self.flip();
-
             if (!self.paused) {
-                window.requestAnimationFrame(loop);
+                self.flip();
             }
+
+            if (self.onloop) {
+                self.onloop();
+            }
+
+            window.requestAnimationFrame(loop);
         }());
     };
     Camvas.prototype.flip = function (input) {

@@ -16,23 +16,26 @@
     }
 
     var Filters = {},
-        flip    = scope.Camvas.definition.prototype.flip;
-    scope.Camvas.definition.prototype.flip = function () {
-
-        var src     = this.video,
-            filters = this.getFilters(),
-            temp, ctx,
+        flip    = scope.Camvas.definition.prototype.flip,
+        temp    = null,
+        ctx;
+    scope.Camvas.definition.prototype.flip = function (input) {
+        input = input || this.video;
+        var filters = this.getFilters(),
             pixels, filter, args, imageData;
+        
 
         // Apply filters to video
         if (!isEmpty(filters)) {
-            temp = document.createElement('canvas'),
-            temp.width  = this.canvas.width;
-            temp.height = this.canvas.height;
+            if (temp === null) {
+                temp = document.createElement('canvas'),
+                temp.width  = this.canvas.width;
+                temp.height = this.canvas.height;
+                ctx = temp.getContext('2d');
+            }
 
-            ctx = temp.getContext('2d');
-            ctx.drawImage(src,
-                          0, 0, src.width, src.height,
+            ctx.drawImage(input,
+                          0, 0, input.width, input.height,
                           0, 0, this.canvas.width, this.canvas.height);
             imageData = ctx.getImageData(0, 0, temp.width, temp.height);
             pixels    = imageData.data;
@@ -44,11 +47,11 @@
             imageData.data = pixels;
             ctx.putImageData(imageData, 0, 0);
 
-            src = temp;
+            input = temp;
         }
 
         // Copy (filtered) video to canvas through stored original function
-        flip.apply(this, [src]);
+        flip.apply(this, [input]);
     };
 
     scope.Camvas.definition.prototype.getFilters = function () {
@@ -82,7 +85,8 @@
 
         var filter = {matrix: matrix},
             size   = Math.floor(Math.sqrt(matrix.length)),
-            offset = Math.floor(size / 2);
+            offset = Math.floor(size / 2),
+            ccc    = 0;
         filter.func = function (pixels, width, height) {
             if (typeof filter.helper === 'undefined') {
                 filter.helper = document.createElement('canvas').getContext('2d').createImageData(width, height).data;
@@ -104,9 +108,9 @@
             for (y = 0; y < height; y += 1) {
                 for (x = 0; x < width; x += 1) {
                     r = g = b = matrixOffset = 0;
-                    for (sy = y - offset; sy < y + offset; sy += 1) {
+                    for (sy = y - offset; sy <= y + offset; sy += 1) {
                         srcOffset = (sy * width + x - offset) << 2;
-                        for (sx = x - offset; sx < x + offset; sx += 1) {
+                        for (sx = x - offset; sx <= x + offset; sx += 1) {
                             if (sx >= 0 && sx < width && sy >= 0 && sy < height) {
                                 weight = filter.matrix[matrixOffset];
                                 r += filter.helper[srcOffset + 0] * weight;
