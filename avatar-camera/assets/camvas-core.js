@@ -49,8 +49,7 @@ navigator.getMedia = (function () {
         }
 
         var video = document.createElement('video'),
-            self  = this,
-            init;
+            self  = this;
         if (typeof video.play === 'undefined') {
             throw 'Video not supported';
         }
@@ -61,8 +60,8 @@ navigator.getMedia = (function () {
         this.paused  = true;
         this.running = false;
 
-        canvas.width  = width  || canvas.clientWidth  || canvas.width;
-        canvas.height = height || canvas.clientHeight || canvas.height;
+        canvas.width  = video.width  = width  || canvas.clientWidth  || canvas.width;
+        canvas.height = video.height = height || canvas.clientHeight || canvas.height;
 
         navigator.getMedia({video: true}, function (stream) {
             if (navigator.mozGetUserMedia) {
@@ -75,25 +74,20 @@ navigator.getMedia = (function () {
             throw 'Error during stream initialization: ' + error;
         });
 
-        init = function () {
-            video.removeEventListener('canplay', init, false);
-
-            video.width  = video.videoWidth;
-            video.height = video.videoHeight;
+        video.addEventListener('playing', function handler () {
+            video.removeEventListener('playing', handler);
 
             // adjust canvas height to video resolution
             canvas.height = video.height * (video.width / canvas.width);
 
-            self.play();
-
             (callback || function () {})();
-        };
-        video.addEventListener('canplay', init, false);
+
+            self.play();
+        });
     };
     Camvas.prototype.play = function () {
         if (this.paused) {
             this.paused = false;
-            this.video.play();
 
         }
         if (!this.running) {
@@ -104,7 +98,7 @@ navigator.getMedia = (function () {
     Camvas.prototype.loop = function () {
         var self = this;
         (function loop () {
-            if (!self.paused) {
+            if (!self.paused && self.video.videoWidth) {
                 self.flip();
             }
 
@@ -115,15 +109,15 @@ navigator.getMedia = (function () {
             window.requestAnimationFrame(loop);
         }());
     };
-    Camvas.prototype.flip = function (input) {
-        input = input || this.video;
-        this.context.drawImage(input,
-                               0, 0, input.width, input.height,
-                               0, 0, this.canvas.width, this.canvas.height);
+    Camvas.prototype.flip = function (input, context) {
+        input   = input   || this.video;
+        context = context || this.context;
+        context.drawImage(input, 0, 0);
+//                          0, 0, input.width, input.height,
+//                          0, 0, context.canvas.width, context.canvas.height);
     };
     Camvas.prototype.pause = function () {
         this.paused = true;
-        this.video.pause();
     };
     Camvas.prototype.toDataURL = function (type, quality) {
         return this.canvas.toDataURL(type || 'image/jpeg', quality || 1);
@@ -133,15 +127,7 @@ navigator.getMedia = (function () {
     scope.Camvas = {
         definition: Camvas,
         create: function (canvas, width, height, callback) {
-            var camvas = false;
-            try {
-                camvas = new Camvas(canvas, width, height, callback);
-            } catch (e) {
-                if (typeof console !== 'undefined') {
-                    console.log('Camvas Error: ', e);
-                }
-            }
-            return camvas;
+            return new Camvas(canvas, width, height, callback);
         }
     };
 
