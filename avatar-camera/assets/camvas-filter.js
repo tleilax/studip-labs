@@ -19,11 +19,10 @@
         flip    = scope.Camvas.definition.prototype.flip,
         temp    = null,
         ctx;
-    scope.Camvas.definition.prototype.flip = function (input) {
+    scope.Camvas.definition.prototype.flip = function (input, context) {
         input = input || this.video;
         var filters = this.getFilters(),
-            pixels, filter, args, imageData;
-        
+            pixels, filter, imageData;        
 
         // Apply filters to video
         if (!isEmpty(filters)) {
@@ -34,9 +33,7 @@
                 ctx = temp.getContext('2d');
             }
 
-            ctx.drawImage(input,
-                          0, 0, input.width, input.height,
-                          0, 0, this.canvas.width, this.canvas.height);
+            flip.apply(this, [input, ctx]);
             imageData = ctx.getImageData(0, 0, temp.width, temp.height);
             pixels    = imageData.data;
 
@@ -44,14 +41,14 @@
                 pixels = Filters[filter].func(pixels, temp.width, temp.height);
             }
 
-            imageData.data = pixels;
+            imageData.data.set(pixels);
             ctx.putImageData(imageData, 0, 0);
 
             input = temp;
         }
 
         // Copy (filtered) video to canvas through stored original function
-        flip.apply(this, [input]);
+        flip.apply(this, [input, context]);
     };
 
     scope.Camvas.definition.prototype.getFilters = function () {
@@ -122,9 +119,9 @@
                         }
                     }
 
-                    pixels[destOffset + 0] = r / factor;
-                    pixels[destOffset + 1] = g / factor;
-                    pixels[destOffset + 2] = b / factor;
+                    pixels[destOffset + 0] = (r / factor) | 0;
+                    pixels[destOffset + 1] = (g / factor) | 0;
+                    pixels[destOffset + 2] = (b / factor) | 0;
 
                     destOffset += 4;
                 }
@@ -154,9 +151,9 @@
                 matrix    = Filters[name].matrix,
                 i;
             for (i = 0; i < numPixels; i += 4) {
-                pixels[i + 0] = pixels[i + 0] * matrix[0] + pixels[i + 1] * matrix[1] + pixels[i + 2] * matrix[2];
-                pixels[i + 1] = pixels[i + 0] * matrix[3] + pixels[i + 1] * matrix[4] + pixels[i + 2] * matrix[5];
-                pixels[i + 2] = pixels[i + 0] * matrix[6] + pixels[i + 1] * matrix[7] + pixels[i + 2] * matrix[8];
+                pixels[i + 0] = (pixels[i + 0] * matrix[0] + pixels[i + 1] * matrix[1] + pixels[i + 2] * matrix[2]) | 0;
+                pixels[i + 1] = (pixels[i + 0] * matrix[3] + pixels[i + 1] * matrix[4] + pixels[i + 2] * matrix[5]) | 0;
+                pixels[i + 2] = (pixels[i + 0] * matrix[6] + pixels[i + 1] * matrix[7] + pixels[i + 2] * matrix[8]) | 0;
             }
             return pixels;
         };
