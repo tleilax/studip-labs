@@ -1,25 +1,25 @@
 <?php
 /**
- * Content renderer for json content.
+ * Content renderer for serialized php content.
  *
  * @author  Jan-Hendrik Willms <tleilax+studip@gmail.com>
  * @license GPL2+
  */
 
-class JSONRenderer extends ContentRenderer
+class PHPRenderer extends ContentRenderer
 {
     public function contentType()
     {
-        return 'application/json';
+        return 'application/x-php';
     }
 
     public function extension()
     {
-        return '.json';
+        return '.php';
     }
 
     public function render($data, $router)
     {
-        return json_encode($data);
+        return serialize($data);
     }
 }

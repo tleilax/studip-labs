@@ -6,22 +6,31 @@
 abstract class ContentRenderer
 {
     /**
-     *
+     * Returns an associated content type.
      */
     abstract public function contentType();
 
     /**
-     *
+     * Returns an associated extension.
      */
     abstract public function extension();
 
     /**
+     * Actual data rendering function.
      *
+     * @param mixed $data    Data to render
+     * @param Router $router Related router object
      */
-    abstract public function render($data);
+    abstract public function render($data, $router);
 
     /**
+     * Detects whether the renderer should respond to either a certain
+     * filename (tests by extension) or to a certain media range.
      *
+     * @param String $filename    Filename to test against
+     * @param mixed  $media_range Media range to test against (optional,
+     *                            defaults to request's accept header if set)
+     * @return bool Returns whether the renderer should respond
      */
     public function shouldRespondTo($filename, $media_range = null)
     {

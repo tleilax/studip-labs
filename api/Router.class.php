@@ -26,10 +26,17 @@ class Router
 
     // Stores the registered routes by method and uri template
     protected $routes = array();
-    
+
     // Stores the registered content renderers
     protected $renderers = array();
-    
+
+    // Stores the chosen or forced content renderer
+    protected $content_renderer = false;
+
+    // Stores the default renderer
+    protected $default_renderer = false;
+
+    // Stores the registered conditions
     protected $conditions = array();
 
     /**
@@ -37,6 +44,19 @@ class Router
      */
     protected function __construct()
     {
+    }
+
+    /**
+     * Sets global conditions.
+     *
+     * @param Array   $conditions   An associative array with parameter name
+     *                              as key and regexp to match as value
+     * @return Router Returns instance of itself to allow chaining
+     */
+    public function setConditions($conditions)
+    {
+        $this->conditions = $conditions;
+        return $this;
     }
 
     /**
@@ -101,7 +121,7 @@ class Router
         }
 
         array_unshift($arguments, $method);
-        
+
         return call_user_func_array(array($this, 'register'), $arguments);
     }
 
@@ -181,13 +201,14 @@ class Router
         $method = strtolower($_SERVER['REQUEST_METHOD']);
 
         // Content negotiation
-        $content_type     = 'text/html';
-        $content_renderer = false;
-        foreach ($this->renderers as $renderer) {
-            if ($renderer->shouldRespondTo($uri)) {
-                $content_renderer = $renderer;
-                $uri = substr($uri, 0, -strlen($renderer->extension()));
-                break;
+        if (!$this->content_renderer) {
+            $this->content_renderer = $this->default_renderer ?: false;
+            foreach ($this->renderers as $renderer) {
+                if ($renderer->shouldRespondTo($uri)) {
+                    $this->content_renderer = $renderer;
+                    $uri = substr($uri, 0, -strlen($renderer->extension()));
+                    break;
+                }
             }
         }
 
@@ -210,21 +231,21 @@ class Router
         if (!$handler) {
             throw new RuntimeException('No route matches your request.');
         }
-        
+
         // Call the request handler. A potential api exception will lead to
         // an empty response with the exception code and name as the http status.
         try {
             $result = call_user_func_array($handler, $parameters);
 
             // Set Content-Type header
-            $content_type = $content_renderer
-                          ? $content_renderer->contentType()
-                          : 'text/html';
-            header('Content-Type: ' . $contentType);
+            $content_type = $this->content_renderer
+                          ? $this->content_renderer->contentType()
+                          : 'text/plain';
+            header('Content-Type: ' . $content_type);
 
             // Output result
-            if ($content_renderer) {
-                $result = $content_renderer->render($result);
+            if ($this->content_renderer) {
+                $result = $this->content_renderer->render($result, $this);
             }
             echo $result;
         } catch (RouterException $e) {
@@ -241,12 +262,45 @@ class Router
     /**
      * Registers a content renderer.
      *
-     * @param ContentRenderer $renderer Instance of a content renderer
+     * @param ContentRenderer $renderer   Instance of a content renderer
+     * @param boolean         $is_default Set this renderer as default?
      * @return Router Returns instance of itself to allow chaining
      */
-    public function registerRenderer(ContentRenderer $renderer)
+    public function registerRenderer(ContentRenderer $renderer, $is_default = false)
     {
         $this->renderers[] = $renderer;
+        if ($is_default) {
+            $this->default_renderer = $renderer;
+        }
+        return $this;
+    }
+
+    /**
+     * Forces a certain content renderer.
+     *
+     * @param String $identifier Identifier for the chosen content type. This
+     *                           is either the associated file extension or
+     *                           the associated content type of the content
+     *                           type that is supposed to be forced.
+     * @return Router Returns instance of it self to allow chaining
+     * @throws RouterException If no renderer could be identified
+     */
+    public function forceRenderer($identifier)
+    {
+        $identified = false;
+        foreach ($this->renderers as $renderer) {
+            if (in_array($identifier, array($renderer->extension(), $renderer->contentType()))) {
+                $this->content_renderer = $renderer;
+
+                $identified = true;
+                break;
+            }
+        }
+
+        if (!$identified) {
+            throw new RouterException('No renderer could be identified by "' . $identifier. '"');
+        }
+
         return $this;
     }
 }
