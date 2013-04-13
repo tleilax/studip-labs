@@ -63,21 +63,40 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(Router::getInstance()->uriMatchesTemplate('/hello/mr/jones', '/hello/mr'));
         $this->assertFalse(Router::getInstance()->uriMatchesTemplate('/hello/mr', '/hello/mr/jones'));
     }
+        
+    public function testURLMatchingOptional()
+    {
+        $this->markTestIncomplete();
 
-    public function testConditions()
+        $this->assertTrue(Router::getInstance()->uriMatchesTemplate('/hello/world', '/hello(/:name)'));
+    }
+
+    public function testConditionMatch()
     {
         $this->assertTrue(Router::getInstance()->uriMatchesTemplate('/hello/foooooo', '/hello/:name', $z, array('name' => '/^fo+$/')));
-        $this->assertFalse(Router::getInstance()->uriMatchesTemplate('/hello/world', '/hello/:name', $z, array('name' => '/^fo+$/')));
+    }
 
+    public function testConditionFail()
+    {
+        $this->assertFalse(Router::getInstance()->uriMatchesTemplate('/hello/world', '/hello/:name', $z, array('name' => '/^fo+$/')));
+    }
+
+    public function testGlobalConditionMatch()
+    {
         Router::getInstance()->setConditions(array('foo' => '/^foo$/', 'bar' => '/^\d+/'));
         $this->assertTrue(Router::getInstance()->uriMatchesTemplate('/foo/123', '/:foo/:bar'));
+    }
+
+    public function testGlobalConditionFail()
+    {
+        Router::getInstance()->setConditions(array('foo' => '/^foo$/', 'bar' => '/^\d+/'));
         $this->assertFalse(Router::getInstance()->uriMatchesTemplate('/foo/bar', '/:foo/:bar'));
     }
 
     public function testJSONRenderer()
     {
         $renderer = new JSONRenderer();
-        
+
         $this->assertTrue($renderer->shouldRespondTo('filename.json'));
         $this->assertFalse($renderer->shouldRespondTo('filename.txt'));
 
@@ -125,7 +144,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testPHPRenderer()
     {
         $renderer = new PHPRenderer();
-        
+
         $this->assertTrue($renderer->shouldRespondTo('filename.php'));
         $this->assertFalse($renderer->shouldRespondTo('filename.txt'));
 
