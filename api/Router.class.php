@@ -1,6 +1,10 @@
 <?php
 /**
- * @see http://blog.sosedoff.com/2009/07/04/simpe-php-url-routing-controller/
+ * Simple and flexible router. Needs PHP >= 5.3.
+ *
+ * @author  Jan-Hendrik Willms <tleilax+studip@gmail.com>
+ * @license GPL3
+ * @see     Inspired by http://blog.sosedoff.com/2009/07/04/simpe-php-url-routing-controller/
  */
 
 class Router
@@ -148,6 +152,9 @@ class Router
         // Initialize parameters array
         $parameters = array();
 
+        // Set conditions (globally and locally, locally has higher priority)
+        $conditions = array_merge($this->conditions, $conditions);
+
         // Split and normalize uri and template
         $given = array_filter(explode('/', $uri));
         $rules = array_filter(explode('/', $template));
@@ -187,18 +194,17 @@ class Router
     /**
      * Dispatches an uri across the defined routes.
      *
-     * @param mixed  $uri     Uri to dispatch (defaults to path info)
-     * @param String $default Default value if no uri is given
-     * @throws RuntimeException If the uri could not be dispatched
+     * @param mixed  $uri    Uri to dispatch (defaults to path info)
+     * @param String $method Request method (defaults to actual method or GET)
      */
-    public function dispatch($uri = null, $default = '')
+    public function dispatch($uri = null, $method = null)
     {
         // Default URI to path info or given default uri
         if ($uri === null) {
-            $uri = $_SERVER['PATH_INFO'] ?: $default;
+            $uri = $_SERVER['PATH_INFO'];
         }
         // Normalize method
-        $method = strtolower($_SERVER['REQUEST_METHOD']);
+        $method = strtolower($method ?: $_SERVER['REQUEST_METHOD'] ?: 'get');
 
         // Content negotiation
         if (!$this->content_renderer) {
@@ -206,7 +212,6 @@ class Router
             foreach ($this->renderers as $renderer) {
                 if ($renderer->shouldRespondTo($uri)) {
                     $this->content_renderer = $renderer;
-                    $uri = substr($uri, 0, -strlen($renderer->extension()));
                     break;
                 }
             }
@@ -217,9 +222,12 @@ class Router
         $handler    = false;
         $parameters = array();
         if (isset($this->routes[$method])) {
+            if ($this->content_renderer && strpos($uri, $this->content_renderer->extension()) !== false) {
+                $uri = substr($uri, 0, -strlen($this->content_renderer->extension()));
+            }
+
             foreach ($this->routes[$method] as $uri_template => $route) {
-                $conditions = array_merge($this->conditions, $route['conditions']);
-                if ($this->uriMatchesTemplate($uri, $uri_template, $prmtrs, $conditions)) {
+                if ($this->uriMatchesTemplate($uri, $uri_template, $prmtrs, $route['conditions'])) {
                     $handler    = $route['handler'];
                     $parameters = $prmtrs;
                     break;
@@ -227,21 +235,23 @@ class Router
             }
         }
 
-        // Throw exception if no route matches
-        if (!$handler) {
-            throw new RuntimeException('No route matches your request.');
-        }
-
         // Call the request handler. A potential api exception will lead to
         // an empty response with the exception code and name as the http status.
         try {
+            // Throw exception if no route matches
+            if (!$handler) {
+                throw new RouterException('No route matches your request "' . $uri . '".', 404);
+            }
+
             $result = call_user_func_array($handler, $parameters);
 
             // Set Content-Type header
-            $content_type = $this->content_renderer
-                          ? $this->content_renderer->contentType()
-                          : 'text/plain';
-            header('Content-Type: ' . $content_type);
+            if (!headers_sent()) {
+                $content_type = $this->content_renderer
+                              ? $this->content_renderer->contentType()
+                              : 'text/plain';
+                header('Content-Type: ' . $content_type);
+            }
 
             // Output result
             if ($this->content_renderer) {
@@ -254,8 +264,11 @@ class Router
                               $e->getCode(),
                               $e->getMessage());
             $status = trim($status);
-            header($status, true, $e->getCode());
-            die;
+            if (!headers_sent()) {
+                header($status, true, $e->getCode());
+            } else {
+                echo $status;
+            }
         }
     }
 
@@ -268,10 +281,14 @@ class Router
      */
     public function registerRenderer(ContentRenderer $renderer, $is_default = false)
     {
-        $this->renderers[] = $renderer;
+        $this->renderers[$renderer->extension()] = $renderer;
         if ($is_default) {
             $this->default_renderer = $renderer;
         }
+
+        // Reset current content renderer
+        $this->content_renderer = false;
+
         return $this;
     }
 
