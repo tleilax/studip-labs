@@ -1,6 +1,14 @@
 <?php
 /**
+ * Abstract content renderer class.
  *
+ * Content renderers are output filters that can reshape data before it
+ * is sent to the client.
+ * Each content renderer is associated with a certain content type and a
+ * certain file extension. This is neccessary for content negotiation.
+ *
+ * @author  Jan-Hendrik Willms <tleilax+studip@gmail.com>
+ * @license GPL3
  */
 
 abstract class ContentRenderer

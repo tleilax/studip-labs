@@ -3,7 +3,7 @@
  * Content renderer for serialized php content.
  *
  * @author  Jan-Hendrik Willms <tleilax+studip@gmail.com>
- * @license GPL2+
+ * @license GPL3
  */
 
 class PHPRenderer extends ContentRenderer
