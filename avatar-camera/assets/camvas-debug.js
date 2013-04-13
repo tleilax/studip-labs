@@ -12,8 +12,7 @@
             threshold = 5,
             element   = document.querySelector(selector),
             fps       = [];
-        console.log(element);
-        
+
         this.onloop = function onloop () {
             frames += 1;
 
