@@ -5,7 +5,7 @@
     sfx.snap.src = 'assets/snap.wav';
 
     var camvas = Camvas.create('#avatar', 640, 480, function () {
-        $('.hidden').show();
+        $('.hidden').removeClass('hidden');
 
         camvas.debug('#debug');
         camvas.enableSelection({
