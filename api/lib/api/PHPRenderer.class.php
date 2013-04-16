@@ -6,6 +6,8 @@
  * @license GPL3
  */
 
+namespace API;
+
 class PHPRenderer extends ContentRenderer
 {
     public function contentType()

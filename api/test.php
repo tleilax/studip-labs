@@ -4,7 +4,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     private function dispatch($url, $method = 'get')
     {
         ob_start();
-        Router::getInstance()->dispatch($url, $method);
+        API\Router::getInstance()->dispatch($url, $method);
         return ob_get_clean();
     }
 
@@ -12,19 +12,19 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     public function setup()
     {
-        require_once 'Router.class.php';
-        require_once 'RouterException.class.php';
-        require_once 'ContentRenderer.class.php';
-        require_once 'JSONRenderer.class.php';
-        require_once 'PHPRenderer.class.php';
+        require_once 'lib/api/Router.class.php';
+        require_once 'lib/api/RouterException.class.php';
+        require_once 'lib/api/ContentRenderer.class.php';
+        require_once 'lib/api/JSONRenderer.class.php';
+        require_once 'lib/api/PHPRenderer.class.php';
 
-        Router::getInstance()
-              ->get('/test', function () { return 'test'; })
-              ->get('/array', function () { return array('test' => 'array'); })
-              ->get('/get', function () { return 'get'; })
-              ->post('/post', function () { return 'post'; })
-              ->put('/put', function () { return 'put'; })
-              ->delete('/delete', function () { return 'delete'; });
+        API\Router::getInstance()
+            ->get('/test', function () { return 'test'; })
+            ->get('/array', function () { return array('test' => 'array'); })
+            ->get('/get', function () { return 'get'; })
+            ->post('/post', function () { return 'post'; })
+            ->put('/put', function () { return 'put'; })
+            ->delete('/delete', function () { return 'delete'; });
     }
 
     public function testGet()
@@ -49,53 +49,53 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     public function testURLMatching()
     {
-        $this->assertTrue(Router::getInstance()->uriMatchesTemplate('/hello', '/hello'));
-        $this->assertTrue(Router::getInstance()->uriMatchesTemplate('hello', '/hello'));
-        $this->assertTrue(Router::getInstance()->uriMatchesTemplate('/hello', 'hello'));
-        $this->assertTrue(Router::getInstance()->uriMatchesTemplate('/hello/////', '/hello'));
-        $this->assertTrue(Router::getInstance()->uriMatchesTemplate('/hello/world', '/hello/world'));
-        $this->assertTrue(Router::getInstance()->uriMatchesTemplate('/hello/world', '/hello/:name'));
+        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello', '/hello'));
+        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('hello', '/hello'));
+        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello', 'hello'));
+        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello/////', '/hello'));
+        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello/world', '/hello/world'));
+        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello/world', '/hello/:name'));
 
-        $this->assertTrue(Router::getInstance()->uriMatchesTemplate('/hello/world', '/:greeting/:name', $parameters));
+        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello/world', '/:greeting/:name', $parameters));
         $this->assertEquals($parameters, array('greeting' => 'hello', 'name' => 'world'));
 
-        $this->assertFalse(Router::getInstance()->uriMatchesTemplate('/hello/world.json', '/hello/world'));
-        $this->assertFalse(Router::getInstance()->uriMatchesTemplate('/hello/mr/jones', '/hello/mr'));
-        $this->assertFalse(Router::getInstance()->uriMatchesTemplate('/hello/mr', '/hello/mr/jones'));
+        $this->assertFalse(API\Router::getInstance()->uriMatchesTemplate('/hello/world.json', '/hello/world'));
+        $this->assertFalse(API\Router::getInstance()->uriMatchesTemplate('/hello/mr/jones', '/hello/mr'));
+        $this->assertFalse(API\Router::getInstance()->uriMatchesTemplate('/hello/mr', '/hello/mr/jones'));
     }
         
     public function testURLMatchingOptional()
     {
         $this->markTestIncomplete();
 
-        $this->assertTrue(Router::getInstance()->uriMatchesTemplate('/hello/world', '/hello(/:name)'));
+        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello/world', '/hello(/:name)'));
     }
 
     public function testConditionMatch()
     {
-        $this->assertTrue(Router::getInstance()->uriMatchesTemplate('/hello/foooooo', '/hello/:name', $z, array('name' => '/^fo+$/')));
+        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello/foooooo', '/hello/:name', $z, array('name' => '/^fo+$/')));
     }
 
     public function testConditionFail()
     {
-        $this->assertFalse(Router::getInstance()->uriMatchesTemplate('/hello/world', '/hello/:name', $z, array('name' => '/^fo+$/')));
+        $this->assertFalse(API\Router::getInstance()->uriMatchesTemplate('/hello/world', '/hello/:name', $z, array('name' => '/^fo+$/')));
     }
 
     public function testGlobalConditionMatch()
     {
-        Router::getInstance()->setConditions(array('foo' => '/^foo$/', 'bar' => '/^\d+/'));
-        $this->assertTrue(Router::getInstance()->uriMatchesTemplate('/foo/123', '/:foo/:bar'));
+        API\Router::getInstance()->setConditions(array('foo' => '/^foo$/', 'bar' => '/^\d+/'));
+        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/foo/123', '/:foo/:bar'));
     }
 
     public function testGlobalConditionFail()
     {
-        Router::getInstance()->setConditions(array('foo' => '/^foo$/', 'bar' => '/^\d+/'));
-        $this->assertFalse(Router::getInstance()->uriMatchesTemplate('/foo/bar', '/:foo/:bar'));
+        API\Router::getInstance()->setConditions(array('foo' => '/^foo$/', 'bar' => '/^\d+/'));
+        $this->assertFalse(API\Router::getInstance()->uriMatchesTemplate('/foo/bar', '/:foo/:bar'));
     }
 
     public function testJSONRenderer()
     {
-        $renderer = new JSONRenderer();
+        $renderer = new API\JSONRenderer();
 
         $this->assertTrue($renderer->shouldRespondTo('filename.json'));
         $this->assertFalse($renderer->shouldRespondTo('filename.txt'));
@@ -111,39 +111,39 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     public function testJSONRendererResponse()
     {
-        Router::getInstance()->registerRenderer(new JSONRenderer);
+        API\Router::getInstance()->registerRenderer(new API\JSONRenderer);
         $this->assertEquals($this->dispatch('/test.json'), json_encode('test'));
     }
 
     public function testJSONRendererArrayResponse()
     {
-        Router::getInstance()->registerRenderer(new JSONRenderer);
+        API\Router::getInstance()->registerRenderer(new API\JSONRenderer);
         $this->assertEquals($this->dispatch('/array.json'), json_encode(array('test' => 'array')));
     }
 
     public function testJSONRendererForcedByExtension()
     {
-        Router::getInstance()->registerRenderer(new JSONRenderer);
-        Router::getInstance()->forceRenderer('.json');
+        API\Router::getInstance()->registerRenderer(new API\JSONRenderer);
+        API\Router::getInstance()->forceRenderer('.json');
         $this->assertEquals($this->dispatch('/test'), json_encode('test'));
     }
 
     public function testJSONRendererForcedByContentType()
     {
-        Router::getInstance()->registerRenderer(new JSONRenderer);
-        Router::getInstance()->forceRenderer('application/json');
+        API\Router::getInstance()->registerRenderer(new API\JSONRenderer);
+        API\Router::getInstance()->forceRenderer('application/json');
         $this->assertEquals($this->dispatch('/test'), json_encode('test'));
     }
 
     public function testJSONRendererDefault()
     {
-        Router::getInstance()->registerRenderer(new JSONRenderer, true);
+        API\Router::getInstance()->registerRenderer(new API\JSONRenderer, true);
         $this->assertEquals($this->dispatch('/test'), json_encode('test'));
     }
 
     public function testPHPRenderer()
     {
-        $renderer = new PHPRenderer();
+        $renderer = new API\PHPRenderer();
 
         $this->assertTrue($renderer->shouldRespondTo('filename.php'));
         $this->assertFalse($renderer->shouldRespondTo('filename.txt'));
@@ -159,19 +159,19 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     public function testPHPRendererResponse()
     {
-        Router::getInstance()->registerRenderer(new PHPRenderer);
+        API\Router::getInstance()->registerRenderer(new API\PHPRenderer);
         $this->assertEquals($this->dispatch('/test.php'), serialize('test'));
     }
 
     public function testPHPRendererArrayResponse()
     {
-        Router::getInstance()->registerRenderer(new PHPRenderer);
+        API\Router::getInstance()->registerRenderer(new API\PHPRenderer);
         $this->assertEquals($this->dispatch('/array.php'), serialize(array('test' => 'array')));
     }
 
     public function testPHPRendererDefault()
     {
-        Router::getInstance()->registerRenderer(new PHPRenderer, true);
+        API\Router::getInstance()->registerRenderer(new API\PHPRenderer, true);
         $this->assertEquals($this->dispatch('/test'), serialize('test'));
     }
 }

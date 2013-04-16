@@ -1,6 +1,6 @@
 <?php
 /**
- * Abstract content renderer class.
+ * Default content renderer class (outputs text/plain).
  *
  * Content renderers are output filters that can reshape data before it
  * is sent to the client.
@@ -11,17 +11,25 @@
  * @license GPL3
  */
 
-abstract class ContentRenderer
+namespace API;
+
+class ContentRenderer
 {
     /**
      * Returns an associated content type.
      */
-    abstract public function contentType();
+    public function contentType()
+    {
+        return 'text/plain';
+    }
 
     /**
      * Returns an associated extension.
      */
-    abstract public function extension();
+    public function extension()
+    {
+        return '';
+    }
 
     /**
      * Actual data rendering function.
@@ -29,7 +37,10 @@ abstract class ContentRenderer
      * @param mixed $data    Data to render
      * @param Router $router Related router object
      */
-    abstract public function render($data, $router);
+    public function render($data, $router)
+    {
+        return $data;
+    }
 
     /**
      * Detects whether the renderer should respond to either a certain
@@ -49,7 +60,7 @@ abstract class ContentRenderer
 
         // Test if either the filename has the appropriate extension or
         // if the client accepts the content type
-        return fnmatch('*' . $this->extension(), $filename)
+        return ($this->extension() && fnmatch('*' . $this->extension(), $filename))
             || ($media_range && fnmatch($media_range, $this->contentType()));
     }
 }
