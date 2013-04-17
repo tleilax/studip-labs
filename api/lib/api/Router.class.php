@@ -274,54 +274,64 @@ class Router
      */
     public function dispatch($uri = null, $method = null)
     {
-        // Default URI to path info or given default uri
-        if ($uri === null) {
-            $uri = $_SERVER['PATH_INFO'];
-        }
-        // Normalize method
-        $method = strtolower($method ?: $_SERVER['REQUEST_METHOD'] ?: 'get');
-
-        // Content negotiation
-        if (!$this->content_renderer) {
-            foreach ($this->renderers as $renderer) {
-                if ($renderer->shouldRespondTo($uri)) {
-                    $this->content_renderer = $renderer;
-                    break;
-                }
-            }
-            if (!$this->content_renderer) {
-                $this->content_renderer = $this->default_renderer ?: reset($this->renderers);
-            }
-        }
-
-        // Try to dispatch the uri to all routes registered for the current
-        // request method
-        $handler    = false;
-        $parameters = array();
-        if (isset($this->routes[$method])) {
-            if ($this->content_renderer->extension() && strpos($uri, $this->content_renderer->extension()) !== false) {
-                $uri = substr($uri, 0, -strlen($this->content_renderer->extension()));
-            }
-
-            foreach ($this->routes[$method] as $uri_template => $route) {
-                if ($this->uriMatchesTemplate($uri, $uri_template, $prmtrs, $route['conditions'])) {
-                    $handler    = $route['handler'];
-                    $parameters = $prmtrs;
-                    break;
-                }
-            }
-        }
-
-        // Call the request handler. A potential api exception will lead to
-        // an empty response with the exception code and name as the http status.
+        // A potential api exception will lead to an empty response with the
+        // exception code and name as the http status.
         try {
+            // Default URI to path info or given default uri
+            if ($uri === null) {
+                $uri = $_SERVER['PATH_INFO'];
+            }
+
+            // Check version
+            if (preg_match('~^/v(\d+)~i', $uri, $match)) {
+                $version = $match[1];
+                if ($version != VERSION) {
+                    throw new RouterException('Version not supported.');
+                }
+                $uri = substr($uri, strlen($match[0]));
+            }
+
+            // Normalize method
+            $method = strtolower($method ?: $_SERVER['REQUEST_METHOD'] ?: 'get');
+
+            // Content negotiation
+            if (!$this->content_renderer) {
+                foreach ($this->renderers as $renderer) {
+                    if ($renderer->shouldRespondTo($uri)) {
+                        $this->content_renderer = $renderer;
+                        break;
+                    }
+                }
+                if (!$this->content_renderer) {
+                    $this->content_renderer = $this->default_renderer ?: reset($this->renderers);
+                }
+            }
+
+            // Try to dispatch the uri to all routes registered for the current
+            // request method
+            $handler    = false;
+            $parameters = array();
+            if (isset($this->routes[$method])) {
+                if ($this->content_renderer->extension() && strpos($uri, $this->content_renderer->extension()) !== false) {
+                    $uri = substr($uri, 0, -strlen($this->content_renderer->extension()));
+                }
+
+                foreach ($this->routes[$method] as $uri_template => $route) {
+                    if ($this->uriMatchesTemplate($uri, $uri_template, $prmtrs, $route['conditions'])) {
+                        $handler    = $route['handler'];
+                        $parameters = $prmtrs;
+                        break;
+                    }
+                }
+            }
+
             // Throw exception if no route matches
             if (!$handler) {
                 throw new RouterException('No route matches your request "' . $uri . '".', 404);
             }
 
+            // Call the request handler.
             $result = call_user_func_array($handler, $parameters);
-
             if ($result instanceof Collection) {
                 $result = $result->toArray();
             }

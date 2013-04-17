@@ -1,5 +1,7 @@
 <?php
 namespace API {
+    const VERSION = '2';
+
     spl_autoload_register(function ($class) {
         $temp  = explode('\\', $class);
         $class = array_pop($temp);
