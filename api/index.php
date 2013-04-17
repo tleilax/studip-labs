@@ -1,7 +1,5 @@
 <?php
-namespace API {
-    const VERSION = '2';
-
+namespace {
     spl_autoload_register(function ($class) {
         $temp  = explode('\\', $class);
         $class = array_pop($temp);
@@ -18,41 +16,46 @@ namespace API {
             require $base . '.php';
         }
     });
+}
+namespace API {
+    const VERSION = '2';
 
-    $router = Router::getInstance();
-
-    $router->registerRenderer(new JSONRenderer, true);
-    $router->registerRenderer(new PHPRenderer);
+    // Register content renderers
+    Router::getInstance()->registerRenderer(new JSONRenderer, true);
+    Router::getInstance()->registerRenderer(new PHPRenderer);
     if ($debug = true) {
-        $router->registerRenderer(new DebugRenderer);
+        Router::getInstance()->registerRenderer(new DebugRenderer);
     }
 
-    $router->get('/get', function () { return 'get'; });
-    $router->post('/post', function () { return 'post'; });
-    $router->put('/put', function () { return 'put'; });
-    $router->delete('/delete', function () { return 'delete'; });
+    require 'routes.php';
 
-    $router->describe(array(
-        '/get' => 'GET method',
-        '/post' => 'POST method',
-        '/put' => 'PUT method',
-        '/delete' => 'DELETE method',
-    ));
+    // A potential api exception will lead to an empty response with the
+    // exception code and name as the http status.
+    try {
+        $uri = $_SERVER['PATH_INFO'];
 
-    $router->get('/hello/:name', function ($name = 'world') {
-        return sprintf('Hello %s!', $name);
-    }, array('name' => '/^\w+$/'));
+        // Check version
+        if (preg_match('~^/v(\d+)~i', $uri, $match)) {
+            $version = $match[1];
+            if ($version != VERSION) {
+                throw new RouterException('Version not supported.');
+            }
+            $uri = substr($uri, strlen($match[0]));
+        }
 
-    $router->get('/lower/:what', 'strtolower');
-    $router->get('/md5/:what', 'md5');
-
-    $router->get('/collection', function () {
-        $data = array(
-            array('name' => 'foo'),
-            array('name' => 'bar'),
-        );
-        return Collection::fromArray($data)->paginate('/collection?offset=%1u&limit=%2u', 317, 20, 20);
-    });
-
-    $router->dispatch();
+        // Actural dispatch
+        Router::getInstance()->dispatch($uri);
+    } catch (RouterException $e) {
+        $status = sprintf('%s %u %s',
+                          $_SERVER['SERVER_PROTOCOL'] ?: 'HTTP/1.1',
+                          $e->getCode(),
+                          $e->getMessage());
+        $status = trim($status);
+        if (!headers_sent()) {
+            header($status, true, $e->getCode());
+            echo $status;
+        } else {
+            echo $status;
+        }
+    }
 }
