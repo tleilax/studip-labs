@@ -8,8 +8,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
         return ob_get_clean();
     }
 
-    protected $router;
-
     public function setup()
     {
         require_once 'lib/api/Router.class.php';
@@ -27,41 +25,31 @@ class RouterTest extends PHPUnit_Framework_TestCase
             ->delete('/delete', function () { return 'delete'; });
     }
 
-    public function testGet()
+    public function testMethods()
     {
         $this->assertEquals($this->dispatch('/get', 'get'), 'get');
-    }
-
-    public function testPost()
-    {
         $this->assertEquals($this->dispatch('/post', 'post'), 'post');
-    }
-
-    public function testPut()
-    {
         $this->assertEquals($this->dispatch('/put', 'put'), 'put');
-    }
-
-    public function testDelete()
-    {
         $this->assertEquals($this->dispatch('/delete', 'delete'), 'delete');
     }
 
     public function testURLMatching()
     {
-        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello', '/hello'));
-        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('hello', '/hello'));
-        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello', 'hello'));
-        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello/////', '/hello'));
-        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello/world', '/hello/world'));
-        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello/world', '/hello/:name'));
+        $router = API\Router::getInstance();
+        
+        $this->assertTrue($router->uriMatchesTemplate('/hello', '/hello'));
+        $this->assertTrue($router->uriMatchesTemplate('hello', '/hello'));
+        $this->assertTrue($router->uriMatchesTemplate('/hello', 'hello'));
+        $this->assertTrue($router->uriMatchesTemplate('/hello/////', '/hello'));
+        $this->assertTrue($router->uriMatchesTemplate('/hello/world', '/hello/world'));
+        $this->assertTrue($router->uriMatchesTemplate('/hello/world', '/hello/:name'));
 
-        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello/world', '/:greeting/:name', $parameters));
+        $this->assertTrue($router->uriMatchesTemplate('/hello/world', '/:greeting/:name', $parameters));
         $this->assertEquals($parameters, array('greeting' => 'hello', 'name' => 'world'));
 
-        $this->assertFalse(API\Router::getInstance()->uriMatchesTemplate('/hello/world.json', '/hello/world'));
-        $this->assertFalse(API\Router::getInstance()->uriMatchesTemplate('/hello/mr/jones', '/hello/mr'));
-        $this->assertFalse(API\Router::getInstance()->uriMatchesTemplate('/hello/mr', '/hello/mr/jones'));
+        $this->assertFalse($router->uriMatchesTemplate('/hello/world.json', '/hello/world'));
+        $this->assertFalse($router->uriMatchesTemplate('/hello/mr/jones', '/hello/mr'));
+        $this->assertFalse($router->uriMatchesTemplate('/hello/mr', '/hello/mr/jones'));
     }
         
     public function testURLMatchingOptional()
@@ -69,28 +57,27 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->markTestIncomplete();
 
         $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello/world', '/hello(/:name)'));
+        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello/world', '(/:greeting/:name)'));
+        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello/world', '(/:greeting(/:name))'));
+
+        $this->assertFalse(API\Router::getInstance()->uriMatchesTemplate('/hello/world', '/:greeting/(:name)'));
     }
 
-    public function testConditionMatch()
+    public function testLocalConditions()
     {
-        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/hello/foooooo', '/hello/:name', $z, array('name' => '/^fo+$/')));
+        $router = API\Router::getInstance();
+        
+        $this->assertTrue($router->uriMatchesTemplate('/hello/foooooo', '/hello/:name', $z, array('name' => '/^fo+$/')));
+        $this->assertFalse($router->uriMatchesTemplate('/hello/world', '/hello/:name', $z, array('name' => '/^fo+$/')));
     }
 
-    public function testConditionFail()
+    public function testGlobalConditions()
     {
-        $this->assertFalse(API\Router::getInstance()->uriMatchesTemplate('/hello/world', '/hello/:name', $z, array('name' => '/^fo+$/')));
-    }
+        $router = API\Router::getInstance();
 
-    public function testGlobalConditionMatch()
-    {
-        API\Router::getInstance()->setConditions(array('foo' => '/^foo$/', 'bar' => '/^\d+/'));
-        $this->assertTrue(API\Router::getInstance()->uriMatchesTemplate('/foo/123', '/:foo/:bar'));
-    }
-
-    public function testGlobalConditionFail()
-    {
-        API\Router::getInstance()->setConditions(array('foo' => '/^foo$/', 'bar' => '/^\d+/'));
-        $this->assertFalse(API\Router::getInstance()->uriMatchesTemplate('/foo/bar', '/:foo/:bar'));
+        $router->setConditions(array('foo' => '/^foo$/', 'bar' => '/^\d+/'));
+        $this->assertTrue($router->uriMatchesTemplate('/foo/123', '/:foo/:bar'));
+        $this->assertFalse($router->uriMatchesTemplate('/foo/bar', '/:foo/:bar'));
     }
 
     public function testJSONRenderer()
@@ -107,17 +94,10 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($renderer->shouldRespondTo('', 'image/jpeg'));
         $this->assertFalse($renderer->shouldRespondTo('', 'image/*'));
         $this->assertFalse($renderer->shouldRespondTo('', '*/jpeg'));
-    }
 
-    public function testJSONRendererResponse()
-    {
-        API\Router::getInstance()->registerRenderer(new API\JSONRenderer);
+        API\Router::getInstance()->registerRenderer($renderer);
+
         $this->assertEquals($this->dispatch('/test.json'), json_encode('test'));
-    }
-
-    public function testJSONRendererArrayResponse()
-    {
-        API\Router::getInstance()->registerRenderer(new API\JSONRenderer);
         $this->assertEquals($this->dispatch('/array.json'), json_encode(array('test' => 'array')));
     }
 
@@ -155,17 +135,10 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($renderer->shouldRespondTo('', 'image/jpeg'));
         $this->assertFalse($renderer->shouldRespondTo('', 'image/*'));
         $this->assertFalse($renderer->shouldRespondTo('', '*/jpeg'));
-    }
 
-    public function testPHPRendererResponse()
-    {
-        API\Router::getInstance()->registerRenderer(new API\PHPRenderer);
+        API\Router::getInstance()->registerRenderer($renderer);
+
         $this->assertEquals($this->dispatch('/test.php'), serialize('test'));
-    }
-
-    public function testPHPRendererArrayResponse()
-    {
-        API\Router::getInstance()->registerRenderer(new API\PHPRenderer);
         $this->assertEquals($this->dispatch('/array.php'), serialize(array('test' => 'array')));
     }
 
