@@ -315,23 +315,28 @@ class Router
 
         // Throw exception if no route matches
         if (!$handler) {
-            throw new RouterException('No route matches your request "' . $uri . '".', 404);
+            throw new RouterException('No route matches your request "' . strtoupper($method) . ':/' . $uri . '".', 404);
         }
 
-        // Call the request handler.
-        $result = call_user_func_array($handler, $parameters);
-        if ($result instanceof Collection) {
-            $result = $result->toArray();
-        }
+        // Execute the request handler.
+        $result = $this->execute($handler, $parameters);
 
         // Set Content-Type header
         if (!headers_sent()) {
             header('Content-Type: ' . $this->content_renderer->contentType());
-            header('X-API-Version: ' . VERSION);
         }
 
         // Output result
         echo $this->content_renderer->render($result, $this);
+    }
+
+    protected function execute($handler, $parameters)
+    {
+        $result = call_user_func_array($handler, $parameters);
+        if ($result instanceof Collection) {
+            $result = $result->toArray();
+        }
+        return $result;
     }
 
     /**
