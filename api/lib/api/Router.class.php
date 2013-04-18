@@ -1,6 +1,4 @@
 <?php
-namespace API;
-
 /**
  * Simple and flexible router. Needs PHP >= 5.3.
  *
@@ -8,6 +6,8 @@ namespace API;
  * @license GPL3
  * @see     Inspired by http://blog.sosedoff.com/2009/07/04/simpe-php-url-routing-controller/
  */
+
+namespace API;
 
 class Router
 {
